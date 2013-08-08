@@ -9,11 +9,12 @@ module.exports = class EncryptedUDP extends UDPServer
       throw 'Options hash required for instantiation'
 
     if !options.encryption_key
-      throw 'opts.encryption_key required'
+      throw 'opts.encryption_key required'+ options.encryption_key
+
 
     if options.cipher
         @cipher = options.cipher
-    
+
     @encryption_key = options.encryption_key
     sendMessage = @sendMessage
     @sendMessage = @encryptMessage
@@ -30,13 +31,13 @@ module.exports = class EncryptedUDP extends UDPServer
     @__sendMessage( encryptMessage, host )
 
   onMessageReceived: ( msg, host )->
-    decrypted = @decryptMessage( String(msg) )
+    decrypted = @decryptMessage( msg )
     @onMessageDecrypted( decrypted, host )
 
 
   decryptMessage: ( msg )->
     decipher = crypto.createDecipher( @cipher, @encryption_key )
-    decipher.update( msg, 'base64', 'utf8' )
+    decipher.update( String(msg), 'base64', 'utf8' )
     decryptedMessage = decipher.final( 'utf8' )
 
  

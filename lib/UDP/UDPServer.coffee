@@ -1,10 +1,13 @@
 dgram = require 'dgram'
 _ = require '../../node_modules/underscore'
+EventEmitter = require('events').EventEmitter
+Q = require '../../node_modules/Q'
 
-module.exports = class UDPServer
+module.exports = class UDPServer extends EventEmitter
   udp_type: 'udp4'
   my_port: 8000
   my_host: '0.0.0.0'
+  server_name: 'UDP_Server'
   constructor: ( options )->
     if options 
       if options.port
@@ -45,19 +48,31 @@ module.exports = class UDPServer
   onServerListening: ->
     address = @getAddress();
     console.log ' '
-    console.log( String("UDP Server listening on " + String(address.address + ":" + String(address.port).red).cyan ).green );
+    console.log( String(@server_name + " Server listening on " + String(address.address + ":" + String(address.port).red).cyan ).green );
 
   sendMessage: ( msg, host )->
+    deferred = Q.defer()
     message = new Buffer( msg );
     port = host.port
-    address = host.host
+    address = host.host or host.address
+    if !port or !address 
+      throw new Error('Port and address required via obj.host /obj.address and obj.port')
+
+    # try
     @server.send(message, 0, message.length, port, address, (err, bytes) =>
       if err
+        deferred.reject( err )
         @onErrorSendingMessage( msg, err, bytes )
       else
+        deferred.resolve()
         @onSuccessSendingMessage( msg, bytes )
       
     )
+    # catch e 
+    #   console.log 'Error sending message'
+     # deferred.reject( e )
+      
+    return deferred
 
   onErrorSendingMessage: ( msg, err, bytes )->
     console.log 'Error sending message'
