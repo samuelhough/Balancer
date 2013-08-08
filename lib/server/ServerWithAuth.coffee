@@ -6,9 +6,9 @@ module.exports = class ServerWithAuth extends AbstractMaster
     constructor: ( options )->
       super
       if !options
-        throw 'options required'
+        throw 'ServerWithAuth: options required'
       if !options.auth_port
-        throw "options.auth_port required" 
+        throw "ServerWithAuth: options.auth_port required" 
       @auth_port = options.auth_port   
       @createAuthServer()
 
@@ -18,17 +18,13 @@ module.exports = class ServerWithAuth extends AbstractMaster
         port: @auth_port
         encryption_key: @encryption_key
       )
-      @auth_server.on( 'client_authorized', ( rinfo ) =>
+      @auth_server.on( 'client_authorized', ( rinfo, client ) =>
+        @addClient( client )
         @emit 'client_authorized', rinfo
-      )
-
-    onMessageReceived: ( msg, rinfo )->
-      if @isAuthorized( rinfo.address, rinfo.port ) 
-        @processMessage( msg, @getClientFromHeader( rinfo ) )  
+      ) 
 
     isAuthorized: ( address, port )->
       return !!@auth_server.isAClient( address, port )
-
 
     destroy: ->
       super

@@ -11,16 +11,16 @@ module.exports = class Client extends EncryptedUDP
 
   validateOptions: ( options )->
     if !options
-      throw 'Options required'
+      throw 'Client: Options required'
 
     if !options.auth_port
-      throw 'Options.auth_port required'
+      throw 'Client: Options.auth_port required'
 
     if !options.message_port
-      throw 'Options.message_port required'
+      throw 'Client: Options.message_port required'
 
     if !options.server_address
-      throw 'Options.server_address required'
+      throw 'Client: Options.server_address required'
     
     @server_address = options.server_address
     @message_port   = options.message_port

@@ -30,7 +30,7 @@ module.exports = class UDPServer extends EventEmitter
 
   saveAddress: ( host, port )->
     if !host or !port
-      throw "Host and port must be specified"
+      throw "UDPServer: Host and port must be specified"
     id = "id_"+(Math.random() * 10000000)
     connection = 
       id  : id

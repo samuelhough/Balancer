@@ -3,6 +3,7 @@ chai     = require 'chai'
 expect   = chai.expect
 
 Master  = require '../../lib/Master'
+Backbone = require '../../node_modules/backbone'
 
 describe 'Master Server Test', ->
     it 'Should be there', (done) ->
@@ -47,3 +48,27 @@ describe 'Master Server Test', ->
       expect(udp2.isAClient( '0.0.0.0', 3000 )).to.equal true
       udp2.destroy()
       done()
+
+    it 'Will return a client object when added', ( done )->
+      udp1 = new Master( port: 8000, secret_handshake: 'poop' )
+      udp2 = new Master( port: 8000, secret_handshake: 'poop' )
+      expect(udp2.isAClient( '0.0.0.0', 3000 )).to.equal false
+      client = udp2.addClient( '0.0.0.0', 3000 )
+      expect( typeof client ).to.equal 'object'
+      client2 = udp1.addClient( '0.0.0.0', 30000 )
+      udp2.addClient( client2 )
+      expect( udp2.clients.models.length ).to.equal 2
+      udp2.destroy()
+      udp1.destroy()
+      done()
+
+    it 'Will call onClientAdded when one is added', ( done )->
+      class Mini extends Master
+        onClientAdded: (client)->
+          expect( client instanceof Backbone.Model ).to.equal true
+          udp1.destroy()
+          done()
+
+      udp1 = new Mini( port: 8000, secret_handshake: 'poop' )
+      expect(udp1.isAClient( '0.0.0.0', 3000 )).to.equal false
+      udp1.addClient( '0.0.0.0', 3000 )

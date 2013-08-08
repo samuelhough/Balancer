@@ -1,7 +1,8 @@
+
 # Anything here is used for all tests
 fs   = require 'fs'
 util = require "util"
-log = fs.createWriteStream(process.cwd() + "/test/stdout.log")
+log = fs.createWriteStream(process.cwd() + "/stdout.log")
 console.log = console.info = (t) ->
   out = undefined
   if t and ~t.indexOf("%")

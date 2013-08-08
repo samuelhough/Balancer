@@ -59,6 +59,10 @@ describe 'ServerWithAuth Test', ->
       client.on('authorized', ->
         count++
         expect( count ).to.equal 2
+        expect( udp1.auth_server.clients.models.length ).to.equal 1
+        expect( udp1.clients.models.length ).to.equal 1
+        client.destroy()
+        udp1.destroy()
         done()
       )
       client.authorize()

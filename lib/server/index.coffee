@@ -1,12 +1,13 @@
 ClientCollection = require './ClientCollection'
 UDPServer = require '../UDP/UDPServer'
+BackboneModel = (require '../../node_modules/backbone').Model
 module.exports = class Server extends UDPServer
     constructor: ( options )->
       if !options
-        throw 'options hash required'
+        throw 'Server/Index : options hash required'
 
       if !options.secret_handshake
-        throw 'options.secret_handshake required'
+        throw 'Server/Index : options.secret_handshake required'
 
       @clients = new ClientCollection()
       super
@@ -39,16 +40,27 @@ module.exports = class Server extends UDPServer
     getClientFromHeader: ( rinfo ) ->
       return @clients.getClient( rinfo.address, rinfo.port )
 
-    addClient: ( address, port )->
-      @clients.add( [ 
-        {
-          address: address
-          port: port
-        }
-      ])
-      @onClientAdded( @clients.getClient( address, port ) )
+    addClient: ( address, port, client )->
+      if address instanceof BackboneModel
+        @clients.add address
+        client = address
+      else
+        @clients.add( [ 
+          {
+            address: address
+            port: port
+          }
+        ])
+        client = @clients.getClient( address, port )
+
+      @onClientAdded( client )
+      client
 
     onClientAdded: ( client )->
 
     isAClient: ( address, port )->
       return !!@clients.getClient( address, port )
+
+    destroy: ->
+      super
+      @clients = null

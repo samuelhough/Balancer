@@ -5,10 +5,10 @@ module.exports = class AbstractMaster extends EncryptedUDPServer
     server_name: 'AbstractMaster'
     constructor: ( options )->
       if !options
-        throw 'options hash required'
+        throw 'AbstractMaster: options hash required'
 
       if !options.secret_handshake
-        throw 'options.secret_handshake required'
+        throw 'AbstractMaster: options.secret_handshake required'
 
       @secret_handshake = options.secret_handshake
       @clients = new ClientCollection()

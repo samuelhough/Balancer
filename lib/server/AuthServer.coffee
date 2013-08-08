@@ -10,9 +10,9 @@ module.exports = class AuthServer extends AbstractMaster
     onMessageReceived: ( msg, rinfo )->
       if !@isAClient( rinfo.address, rinfo.port ) 
         if @checkHandshake( msg )
-          @addClient( rinfo.address, rinfo.port )
+          client = @addClient( rinfo.address, rinfo.port )
           @sendMessage( 'authorized', rinfo )
-          @emit('client_authorized', rinfo)
+          @emit('client_authorized', rinfo, client )
         else
           @onHandshakeFail( rinfo )
           return null
