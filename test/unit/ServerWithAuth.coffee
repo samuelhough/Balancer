@@ -29,10 +29,11 @@ describe 'ServerWithAuth Test', ->
         auth_port: 3001
         encryption_key: 'hihi'
       )
+      expect( udp1 ).to.be.ok
       expect( udp1.server ).to.be.ok
       expect( udp1.auth_server.server ).to.be.ok
       udp1.destroy()
-      expect( udp1.auth_server.server ).to.equal null
+      expect( udp1.auth_server ).to.equal null
       expect( udp1.server ).to.equal null
       done()
 

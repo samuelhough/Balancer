@@ -44,6 +44,7 @@ module.exports = class UDPServer extends EventEmitter
 
   onMessageReceived: (msg, rinfo) ->
     console.log( String("Server received: " + msg + " from " + String(rinfo.address).red + ":" + String(rinfo.port).green).yellow );
+    @emit( 'message_received', msg, rinfo )
 
   onServerListening: ->
     address = @getAddress();
@@ -83,7 +84,8 @@ module.exports = class UDPServer extends EventEmitter
     console.log '"'+String(msg).green+'" sent successfully'
 
   destroy: ->
-    @server.close()
+    if @server
+      @server.close()
     @server = null
     @connections_by_id = null
     @connections = null

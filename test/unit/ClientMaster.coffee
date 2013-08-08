@@ -2,17 +2,18 @@ __base   = process.cwd()
 chai     = require 'chai'
 expect   = chai.expect
 util = require 'util'
-Supervisor  = require '../../lib/server/Supervisor'
+ClientMaster  = require '../../lib/server/ClientMaster'
 Client = require '../../lib/Client'
 UDPServer  = require '../../lib/UDP/EncryptedUDP'
+Backbone = require '../../node_modules/backbone'
 
-describe 'Supervisor Test', ->
+describe 'ClientMaster Test', ->
     it 'Should be there', (done) ->
-      expect( typeof Supervisor ).to.equal 'function'
+      expect( typeof ClientMaster ).to.equal 'function'
       done()
 
     it 'Should be a constructor', (done) ->
-      udp = new Supervisor(
+      udp = new ClientMaster(
         port: 8000, 
         auth_port: 8001
         task_message_port: 8002
@@ -22,17 +23,12 @@ describe 'Supervisor Test', ->
         secret_handshake: 'poop' 
         encryption_key: 'hihi'
       )
-      expect(udp instanceof Supervisor).to.equal true
+      expect(udp instanceof ClientMaster).to.equal true
       udp.destroy()
       done()
     
     it 'Can receive messages from a server on the task port from the authorized source', ( done )->
-      class Superman extends Supervisor 
-        taskMessageReceived: ( msg )->
-          expect( msg ).to.equal 'hi'
-          done()
-
-      superman = new Superman( 
+      cm = new ClientMaster( 
         port: 8000, 
         auth_port: 8001
         task_message_port: 8002
@@ -43,15 +39,16 @@ describe 'Supervisor Test', ->
         encryption_key: 'hihi'
       )
 
-      taskgiver = new UDPServer( port: 6999, encryption_key: 'hihi')
-      taskgiver.sendMessage( 'hi', { 
-        host: '0.0.0.0',
-        port: '8002' 
-      })
-
+      cm.addClient( '0.0.0.0', 3000 )
+      cm.addClient( '0.0.0.0', 3001 )
+      cm.addClient( '0.0.0.0', 3002 )
+      client = cm.findClientForTask()
+      expect( client instanceof Backbone.Model ).to.equal true
+      cm.destroy()
+      done()
 
     it 'Destroy', (done)->
-      udp1 = new Supervisor( 
+      udp1 = new ClientMaster( 
         port: 8000, 
         auth_port: 8001
         task_message_port: 8002

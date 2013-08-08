@@ -43,6 +43,19 @@ describe 'Encrypted UDP Test', ->
         port: '3002' 
       })
 
+    it 'Fires teh message decrypted event when a message is decrypted', ( done )->
+      udp1 = new UDPServer( port: 3007, encryption_key: 'hihi' )
+      udp2 = new UDPServer( port: 8000, encryption_key: 'hihi' )
+      udp2.sendMessage( 'hi', { 
+        host: '0.0.0.0',
+        port: '3007' 
+      })
+      udp1.on 'msg_decrypted', ( msg )->
+        expect( msg ).to.equal 'hi'
+        udp1.destroy()
+        udp2.destroy()
+        done()
+
 
     it 'Will call unauthorizedMsg when the host and port do not align', ( done )->
       class child_server extends UDPServer

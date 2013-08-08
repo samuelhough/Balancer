@@ -28,4 +28,6 @@ module.exports = class ServerWithAuth extends AbstractMaster
 
     destroy: ->
       super
-      @auth_server.destroy()
+      if @auth_server
+        @auth_server.destroy()
+      @auth_server = null

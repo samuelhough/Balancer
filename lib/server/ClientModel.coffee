@@ -1,11 +1,15 @@
-BackboneModel = (require '../../node_modules/backbone').Model
+Backbone = require '../../node_modules/backbone'
 Q = require '../../node_modules/Q'
 
-module.exports = BackboneModel.extend(
+module.exports = Backbone.Model.extend(
     authenticated: false
     isAuthenticating: false
     constructor: ( address, port )->
       @tasks = []
+      Backbone.Model.apply( @, arguments )
+
+    addTask: ( task )->
+      @tasks.push( task )
 
     hasTask: ->
       return !!@tasks.length

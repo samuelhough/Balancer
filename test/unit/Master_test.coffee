@@ -3,6 +3,7 @@ chai     = require 'chai'
 expect   = chai.expect
 
 Master  = require '../../lib/Master'
+UDPServer = require '../../lib/UDP/UDPServer'
 Backbone = require '../../node_modules/backbone'
 
 describe 'Master Server Test', ->
@@ -72,3 +73,15 @@ describe 'Master Server Test', ->
       udp1 = new Mini( port: 8000, secret_handshake: 'poop' )
       expect(udp1.isAClient( '0.0.0.0', 3000 )).to.equal false
       udp1.addClient( '0.0.0.0', 3000 )
+
+    it 'Can message a client using only the model', ( done )->
+      udp1 = new Master( port: 8000, secret_handshake: 'poop' )
+      udp2 = new UDPServer( port: 3000, secret_handshake: 'poop' )
+      udp1.addClient( '0.0.0.0', 3000 )
+      udp1.messageClient( 'hibob', udp1.clients.models[0] )
+      udp2.on('message_received', ( msg )->
+        udp1.destroy()
+        udp2.destroy()
+        done()
+      )
+

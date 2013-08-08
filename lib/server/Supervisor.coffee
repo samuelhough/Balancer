@@ -9,19 +9,20 @@ module.exports = class Supervisor extends ServerWithAuth
       super
       if !options.task_message_port
         throw new Error('Supervisor: options.task_message_port required for receiving messages')
+      if !options.authorized_server
+        throw new Error('Suervisor: options.authorized_server { port: number, host: "0.0.0.0" }  ')
 
       @task_server = new EncryptedUDP(
         encryption_key: @encryption_key
         port: options.task_message_port
+        authorized: options.authorized_server
       )
-      @task_server.on('msg_decrypted', _.bind( @parseMessage, @ ) )
+      @task_server.on('msg_decrypted', _.bind( @taskMessageReceived, @ ) )
 
-    parseMessage: ( task )->
-
-
-
+    taskMessageReceived: ( taskMsg )->
 
     destroy: ->
       super
-      @task_server.destroy()
+      if @task_server
+        @task_server.destroy()
       @task_server = null

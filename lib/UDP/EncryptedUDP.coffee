@@ -38,8 +38,6 @@ module.exports = class EncryptedUDP extends UDPServer
   onMessageReceived: ( msg, host )->
     if @authorized_only
       if(!_.filter( @authorized, ( auth )->
-          console.log auth.host
-          console.log host.address
           return auth.host is String(host.address) and String(auth.port) is String(host.port)
       ).length)
         @unauthorizedMsg( msg, host )
@@ -54,7 +52,6 @@ module.exports = class EncryptedUDP extends UDPServer
     decipher = crypto.createDecipher( @cipher, @encryption_key )
     decipher.update( String(msg), 'base64', 'utf8' )
     decryptedMessage = decipher.final( 'utf8' )
-
  
   onMessageDecrypted: ( msg, host )->
     @emit( 'msg_decrypted', msg, host )

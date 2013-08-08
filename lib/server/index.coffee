@@ -56,6 +56,9 @@ module.exports = class Server extends UDPServer
       @onClientAdded( client )
       client
 
+    messageClient: ( message, client )->
+      @sendMessage( message, { host: client.get('address'), port: client.get('port') } )
+
     onClientAdded: ( client )->
 
     isAClient: ( address, port )->
