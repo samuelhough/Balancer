@@ -16,7 +16,7 @@ describe 'Encrypted UDP Test', ->
     it 'Can send a message and have it received between servers and it be encrypted', ( done )->
       class child_server extends UDPServer
         onMessageReceived: ( msg, info )->
-          expect(String(msg)).to.equal '/f6gP8mLGCJBTnY9vP9ybA=='
+          expect(String(msg)).to.equal 'fdfea03fc98b1822414e763dbcff726c'
           udp1.destroy()
           udp2.destroy()
           done()

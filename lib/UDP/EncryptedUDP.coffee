@@ -25,14 +25,14 @@ module.exports = class EncryptedUDP extends UDPServer
     @sendMessage = @encryptMessage
     @__sendMessage = sendMessage
     super
+ 
 
   encryptMessage: ( msg, host ) ->
     encryptMessage = msg
     if @encryption_key
       cypher = crypto.createCipher( @cipher, @encryption_key )
       cypher.setAutoPadding(true);
-      cypher.update( msg, 'utf8', 'base64' )
-      encryptMessage = cypher.final( 'base64' )
+      encryptMessage = cypher.update( msg, 'utf8', 'hex' ) + cypher.final( 'hex' )
 
     @__sendMessage( encryptMessage, host )
 
@@ -49,11 +49,10 @@ module.exports = class EncryptedUDP extends UDPServer
 
   unauthorizedMsg: ( msg, host )->
 
-  decryptMessage: ( msg )->
+  decryptMessage: ( encryptedMsg )->
     decipher = crypto.createDecipher( @cipher, @encryption_key )
     decipher.setAutoPadding(true);
-    decipher.update( String(msg), 'base64', 'utf8' )
-    decryptedMessage = decipher.final( 'utf8' )
+    decryptedMessage = decipher.update(String(encryptedMsg), 'hex', 'utf8') + decipher.final('utf8');
  
   onMessageDecrypted: ( msg, host )->
     @emit( 'msg_decrypted', msg, host )
