@@ -27,6 +27,13 @@ describe 'ClientModel', ->
       expect(model.getTasks().length).to.equal 1
       done()
 
+     it 'Can say whether it has tasks', (done) ->
+      model = new ClientModel()
+      expect( model.hasTask() ).to.equal false
+      model.addTask( 'hi' )
+      expect( model.hasTask() ).to.equal true
+      done()
+
 ###
 
 manager = new Server(

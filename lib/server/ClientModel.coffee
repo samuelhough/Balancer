@@ -4,12 +4,14 @@ Q = require '../../node_modules/Q'
 module.exports = Backbone.Model.extend(
     authenticated: false
     isAuthenticating: false
-    constructor: ( address, port )->
+    initialize: ()->
       @tasks = []
-      Backbone.Model.apply( @, arguments )
 
     addTask: ( task )->
       @tasks.push( task )
+
+    numTasks: ->
+      @tasks.length 
 
     hasTask: ->
       return !!@tasks.length

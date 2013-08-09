@@ -1,6 +1,7 @@
 BackboneCollection = (require '../../node_modules/backbone').Collection
 _ = require '../../node_modules/underscore'
 ClientModel = require './ClientModel'
+
 module.exports = BackboneCollection.extend(
   model: ClientModel
   getClient: ( address, port )->
@@ -9,12 +10,16 @@ module.exports = BackboneCollection.extend(
     ) 
 
   findClientsWithoutTask: ( )->
-    return _.find( @models, ( model )->
-        return model.hasTask()
-    ) or []
+    return _.filter( @models, ( model )->
+        return !model.hasTask()
+    )
 
   clientsByTasks: ->
-    return _.sortBy(@models, ( model1, model2 ) ->
-      return model1.getTasks().length > model2.getTasks().length
+    arr = []
+    for i in @models
+      arr.push i
+
+    return _.sortBy(arr, (  model1 ) ->
+      return model1.numTasks() 
     )
 )

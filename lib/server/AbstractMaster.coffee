@@ -30,3 +30,6 @@ module.exports = class AbstractMaster extends EncryptedUDPServer
 
     isAClient: ( address, port )->
       return !!@clients.getClient( address, port )
+
+    messageClient: ( message, client )->
+      @sendMessage( message, { host: client.get('address'), port: client.get('port') } )

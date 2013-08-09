@@ -1,6 +1,7 @@
 __base   = process.cwd()
 chai     = require 'chai'
 expect   = chai.expect
+assert   = chai.assert
 util = require 'util'
 Supervisor  = require '../../lib/server/Supervisor'
 Client = require '../../lib/Client'

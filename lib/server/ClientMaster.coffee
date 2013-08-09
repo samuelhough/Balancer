@@ -21,8 +21,8 @@ module.exports = class ClientMaster extends Supervisor
     findClientForTask: ->
       noTasks = @clients.findClientsWithoutTask()
       if noTasks.length
-        return noTasks.pop()
-      return @clients.clientsByTasks().pop() or null
+        return noTasks.shift()
+      return @clients.clientsByTasks().shift()
 
 
 
