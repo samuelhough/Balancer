@@ -84,35 +84,45 @@ describe 'ClientMaster Test', ->
 
     it 'Stored tasks test', (done)->
       class Stored extends ClientMaster
-        taskMessageReceived: ->
+        unableToParseTasks: ( msg )->
+          assert( false, "Could not parse #{msg}" )
+        # storeTasks: ->
+        #   super
+        #   assert( @hasStoredTasks() is true, ' Should have stored tasks2 ')
+
+        #   throw new Error('Stored tasks called')
+        taskMessageReceived: ( taskMsg )->
           super
+          tasks = @parseTasks( taskMsg )
+          assert( tasks and tasks.length > 0, 'Tasks should have been returned')
+
+          assert( @hasClients()  is false, 'Should not have any clients')
           assert( @hasStoredTasks() is true, ' Should have stored tasks ')
           cm.destroy()
           taskGiver.destroy()
           done()
 
       cm = new Stored( 
-        port: 6000, 
-        auth_port: 6001
-        task_message_port: 6002
+        port: 5000, 
+        auth_port: 5001
+        task_message_port: 5002
         authorized_server: 
           host: '127.0.0.1'
-          port: '6999'
+          port: '5999'
         secret_handshake: 'poop' 
         encryption_key: 'o5S1kcZp32jWlAdI41sggnpz9vr4fHSA'
       )
 
       taskGiver = new UDPServer(
-        port: '6999'
+        port: '5999'
         encryption_key: 'o5S1kcZp32jWlAdI41sggnpz9vr4fHSA'
       )
       taskMsg = JSON.stringify(
-        task: 
-          tasks: [ v:1,v:2,v:3]
+        tasks: [ v:1,v:2,v:3]
       )
       assert( typeof cm.hasStoredTasks is 'function', 'should have a hasStoredTasks method')
       assert( cm.hasStoredTasks() is false, ' Should not yet have stored tasks ')
-      taskGiver.sendMessage( taskMsg, { port: 6002, address: '0.0.0.0' } )
+      taskGiver.sendMessage( taskMsg, { port: 5002, address: '0.0.0.0' } )
 
 
 
@@ -149,8 +159,7 @@ describe 'ClientMaster Test', ->
       )
       
       taskMsg = JSON.stringify(
-        task: 
-          tasks: [ v:1,v:2,v:3]
+        tasks: [ v:1,v:2,v:3]
       )
 
       taskGiver.sendMessage( taskMsg, { port: 6002, address: '0.0.0.0' } )

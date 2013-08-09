@@ -16,13 +16,16 @@ module.exports = class ClientMaster extends Supervisor
           @handOutTasks( tasks )
         else 
           @storeTasks( tasks )
+      else
+        @unableToParseTasks( taskMsg )
 
     storeTasks: ( tasks )->
-      @task_queue = @task_queue or []
-      @task_queue.concat tasks 
+      if !@task_queue
+        @task_queue = []
+      @task_queue = @task_queue.concat( tasks )
 
     hasStoredTasks: ->
-      return !!(@task_queue and @task_queue.length)
+      return !!(@task_queue and @task_queue.length > 0)
 
     handOutTasks: ( tasks )->
       _.each( tasks, ( task )=>
@@ -42,7 +45,7 @@ module.exports = class ClientMaster extends Supervisor
       totalTasks = []
       for oneTask in subdividedTasks
         thisTask = @createTask( oneTask )
-        thisTask.on('completed', onTaskComplete, @)
+        thisTask.on('completed', @onTaskComplete, @)
         totalTasks.push( thisTask )
       return totalTasks
 
