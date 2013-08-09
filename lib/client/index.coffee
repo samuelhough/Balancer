@@ -36,6 +36,14 @@ module.exports = class Client extends EncryptedUDP
   authorize: ->
     return @sendMessage( @handshaker.getHandshake(),  { host: @server_address, port: @auth_port } )
 
+  onTaskReceived: ( task )->
+    @emit( 'task:received', task )
+
   onMessageDecrypted: ( message, rinfo )->
+    if !(typeof message is 'string')
+      throw new Error('decrypted message must be a string')
     if message is 'authorized'
       @_authorize()
+    if /task:/.test( message )
+      [ prefix, task ] = message.split('task:')
+      @onTaskReceived( message )

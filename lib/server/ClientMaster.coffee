@@ -9,14 +9,29 @@ module.exports = class ClientMaster extends Supervisor
 
     # The point at which a message is received from another server giving orders
     taskMessageReceived: ( taskMsg )->
-      taskObject = @parseTasks( taskMsg )
+      tasks = @parseTasks( taskMsg )
 
-      if tasks
-        _.each( tasks, ( task )=>
-          client = @findClientForTask()
-          client.addTask( task )
-          @messageClient( 'task:'+task, client )
-        )
+      if tasks and tasks.length
+        if @hasClients()
+          @handOutTasks( tasks )
+        else 
+          @storeTasks( tasks )
+
+    storeTasks: ( tasks )->
+      @task_queue = @task_queue or []
+      @task_queue.concat tasks 
+
+    hasStoredTasks: ->
+      return !!(@task_queue and @task_queue.length)
+
+    handOutTasks: ( tasks )->
+      _.each( tasks, ( task )=>
+        if !(task instanceof Task)
+          throw new Error(@server_name +": cannot send out something that is not a task")
+        client = @findClientForTask()
+        client.addTask( task )
+        @messageClient( 'task:'+task.toJSON(), client )
+      )
 
     parseTasks: ( taskMsg )->
       taskObj = @createTaskObject( taskMsg )
@@ -26,11 +41,20 @@ module.exports = class ClientMaster extends Supervisor
       subdividedTasks = @subdivideTasks( taskObj.tasks )
       totalTasks = []
       for oneTask in subdividedTasks
-        totalTasks.push( @createTask( oneTask ) )
+        thisTask = @createTask( oneTask )
+        thisTask.on('completed', onTaskComplete, @)
+        totalTasks.push( thisTask )
       return totalTasks
 
+    onClientAdded: ( client )->
+      if @hasStoredTasks()
+        @handOutTasks( @task_queue )
+        @task_queue = []
+
+    onTaskComplete: ( task )->
+
     createTask: ( taskMsg )->
-      new Task( oneTask )
+      new Task( task: taskMsg )
 
     subdivideTasks: ( singleTask )->
       singleTask
@@ -49,15 +73,11 @@ module.exports = class ClientMaster extends Supervisor
       
       return taskObj
       
-    unableToParseTasks: ( taskMsg, reason )->
-
     findClientForTask: ->
       noTasks = @clients.findClientsWithoutTask()
       if noTasks.length
         return noTasks.shift()
       return @clients.clientsByTasks().shift()
 
-
-
-
+    unableToParseTasks: ( taskMsg, reason )->
 

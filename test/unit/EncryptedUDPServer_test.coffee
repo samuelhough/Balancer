@@ -57,6 +57,34 @@ describe 'Encrypted UDP Test', ->
         done()
 
 
+    it 'Can decrypt with 256bit key', (done)->
+      udp1 = new UDPServer( port: 3007, encryption_key: 'Kf3wF9KyLCie7m1GWFqp8Fops2rRndVC' )
+      udp2 = new UDPServer( port: 8000, encryption_key: 'Kf3wF9KyLCie7m1GWFqp8Fops2rRndVC' )
+      
+      a =
+        address:
+          streetAddress: "21 2nd Street"
+          city: "New York"
+
+        phoneNumber: [
+          type: "home"
+          number: "212 555-1234"
+        ]
+
+      jsonmsg = JSON.stringify(a)
+
+      udp2.sendMessage( jsonmsg, { 
+        host: '0.0.0.0',
+        port: '3007' 
+      })
+
+      udp1.on 'msg_decrypted', ( msg )->
+        expect( msg ).to.equal jsonmsg
+        udp1.destroy()
+        udp2.destroy()
+        done()
+
+
     it 'Will call unauthorizedMsg when the host and port do not align', ( done )->
       class child_server extends UDPServer
         unauthorizedMsg: ( msg, info )->

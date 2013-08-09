@@ -30,6 +30,7 @@ module.exports = class EncryptedUDP extends UDPServer
     encryptMessage = msg
     if @encryption_key
       cypher = crypto.createCipher( @cipher, @encryption_key )
+      cypher.setAutoPadding(true);
       cypher.update( msg, 'utf8', 'base64' )
       encryptMessage = cypher.final( 'base64' )
 
@@ -50,6 +51,7 @@ module.exports = class EncryptedUDP extends UDPServer
 
   decryptMessage: ( msg )->
     decipher = crypto.createDecipher( @cipher, @encryption_key )
+    decipher.setAutoPadding(true);
     decipher.update( String(msg), 'base64', 'utf8' )
     decryptedMessage = decipher.final( 'utf8' )
  

@@ -26,6 +26,9 @@ module.exports = class AbstractMaster extends EncryptedUDPServer
       ])
       @onClientAdded( @clients.getClient( address, port ) )
 
+    hasClients: ->
+      return !!@clients.models.length
+
     onClientAdded: ( client )->
 
     isAClient: ( address, port )->

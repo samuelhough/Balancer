@@ -7,6 +7,7 @@ ClientMaster  = require '../../lib/server/ClientMaster'
 Client = require '../../lib/Client'
 UDPServer  = require '../../lib/UDP/EncryptedUDP'
 Backbone = require '../../node_modules/backbone'
+Task = require '../../lib/models/Task'
 
 describe 'ClientMaster Test', ->
     it 'Should be there', (done) ->
@@ -51,7 +52,7 @@ describe 'ClientMaster Test', ->
     it 'Can pick the right client based on the number of tasks the clients each have', (done)->
       class CM2 extends ClientMaster
         parseTasks: ( taskMsg )->
-          return [1,2,3,4,5]
+          return [ new Task(v:1),new Task(v:2),new Task(v:3),new Task(v:4),new Task(v:5)]
 
       cm = new CM2( 
         port: 8000, 
@@ -80,6 +81,83 @@ describe 'ClientMaster Test', ->
       assert(models[2].tasks.length is 1, 'Given one task' )
       cm.destroy()
       done()
+
+    it 'Stored tasks test', (done)->
+      class Stored extends ClientMaster
+        taskMessageReceived: ->
+          super
+          assert( @hasStoredTasks() is true, ' Should have stored tasks ')
+          cm.destroy()
+          taskGiver.destroy()
+          done()
+
+      cm = new Stored( 
+        port: 6000, 
+        auth_port: 6001
+        task_message_port: 6002
+        authorized_server: 
+          host: '127.0.0.1'
+          port: '6999'
+        secret_handshake: 'poop' 
+        encryption_key: 'o5S1kcZp32jWlAdI41sggnpz9vr4fHSA'
+      )
+
+      taskGiver = new UDPServer(
+        port: '6999'
+        encryption_key: 'o5S1kcZp32jWlAdI41sggnpz9vr4fHSA'
+      )
+      taskMsg = JSON.stringify(
+        task: 
+          tasks: [ v:1,v:2,v:3]
+      )
+      assert( typeof cm.hasStoredTasks is 'function', 'should have a hasStoredTasks method')
+      assert( cm.hasStoredTasks() is false, ' Should not yet have stored tasks ')
+      taskGiver.sendMessage( taskMsg, { port: 6002, address: '0.0.0.0' } )
+
+
+
+    it 'Can be given a task to process and assign them to clients to complete on them connecting', (done)->
+      # throw new Error('Test incomplete')
+      class MyMaster extends ClientMaster
+        onClientAdded: ->
+
+          done()
+
+      cm = new MyMaster( 
+        port: 6000, 
+        auth_port: 6001
+        task_message_port: 6002
+        authorized_server: 
+          host: '127.0.0.1'
+          port: '6999'
+        secret_handshake: 'poop' 
+        encryption_key: 'o5S1kcZp32jWlAdI41sggnpz9vr4fHSA'
+      )
+
+      taskGiver = new UDPServer(
+        port: '6999'
+        encryption_key: 'o5S1kcZp32jWlAdI41sggnpz9vr4fHSA'
+      )
+
+      client = new Client(
+        port            : 4002
+        secret_handshake: 'poop' 
+        encryption_key  : 'hihi'
+        server_address  : '0.0.0.0'
+        auth_port       : 6001
+        message_port    : 6002
+      )
+      
+      taskMsg = JSON.stringify(
+        task: 
+          tasks: [ v:1,v:2,v:3]
+      )
+
+      taskGiver.sendMessage( taskMsg, { port: 6002, address: '0.0.0.0' } )
+      client.authorize()
+
+
+      
 
     it 'Destroy', (done)->
       udp1 = new ClientMaster( 
