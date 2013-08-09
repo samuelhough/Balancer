@@ -1,12 +1,9 @@
-Balances tasks between multiple cleients
+##TaskBalancer -
+  Balance tasks between multiple clients over encrypted UDP
 
-## Getting Started
-Install the module with: `npm install BalanceMonger`
+## Status
+Completely broken and in progress at the moment
 
-```javascript
-BalanceMonger = require('BalanceMonger')
-BalanceMonger.awesome(); // "awesome"
-```
 
 ## Documentation
 _(Coming soon)_
