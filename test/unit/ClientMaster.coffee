@@ -125,10 +125,6 @@ describe 'ClientMaster Test', ->
 
     it 'Can be given a task to process and assign them to clients to complete on them connecting', (done)->
       class TaskReceiver extends Client
-          
-        
-            
-
       cm = new ClientMaster( 
         port: 6010, 
         auth_port: 6011
@@ -159,10 +155,14 @@ describe 'ClientMaster Test', ->
       )
 
       taskGiver.sendMessage( taskMsg, { port: 6012, address: '0.0.0.0' } )
-      
-      client.on 'task:received', ->
+      assert( !cm.hasPendingTasks(), 'Should not have any pending tasks' )
+      client.on 'task:received', ( task )->
         if cm.hasStoredTasks()
           throw new Error('Stored tasks should be handed out')
+        assert( cm.hasPendingTasks(), 'Should have a pending task' )
+        taskGiver.destroy()
+        client.destroy()
+        cm.destroy()
         done()
 
       client.authorize()

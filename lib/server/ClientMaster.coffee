@@ -1,11 +1,16 @@
 Supervisor = require './Supervisor'
 ClientCollection = require './ClientCollection'
+TaskCollection = require '../Collections/TaskCollection'
 EncryptedUDP = require '../UDP/EncryptedUDP'
 _ = require '../../node_modules/underscore'
 Task = require '../models/Task'
 
 module.exports = class ClientMaster extends Supervisor
     server_name: 'ClientMaster'
+
+    constructor: ->
+      super
+      @pending_tasks = new TaskCollection()
 
     # The point at which a message is received from another server giving orders
     taskMessageReceived: ( taskMsg )->
@@ -33,8 +38,12 @@ module.exports = class ClientMaster extends Supervisor
           throw new Error(@server_name +": cannot send out something that is not a task")
         client = @findClientForTask()
         client.addTask( task )
+        @pending_tasks.add(task)
         @messageClient( 'task:'+task.toJSON(), client )
       )
+
+    hasPendingTasks: ->
+      !!@pending_tasks.models.length
 
     parseTasks: ( taskMsg )->
       taskObj = @createTaskObject( taskMsg )

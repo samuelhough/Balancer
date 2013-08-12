@@ -1,6 +1,7 @@
-TaskCollection = require './TaskCollection'
+TaskCollection = require '../Collections/TaskCollection'
 EncryptedUDP = require '../UDP/EncryptedUDP'
 Handshake = require '../controller/handshake'
+TaskModel = require '../models/Task'
 module.exports = class Client extends EncryptedUDP
   authorized: false
   constructor: ( options )->
@@ -36,8 +37,12 @@ module.exports = class Client extends EncryptedUDP
   authorize: ->
     return @sendMessage( @handshaker.getHandshake(),  { host: @server_address, port: @auth_port } )
 
-  onTaskReceived: ( task )->
+  onTaskReceived: ( taskJSON )->
+    task = @createTaskModel( taskJSON )
     @emit( 'task:received', task )
+
+  createTaskModel: ( taskJSON )->
+    return new TaskModel( taskJSON )
 
   onMessageDecrypted: ( message, rinfo )->
     if !(typeof message is 'string')
