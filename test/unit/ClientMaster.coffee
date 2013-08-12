@@ -124,6 +124,11 @@ describe 'ClientMaster Test', ->
 
 
     it 'Can be given a task to process and assign them to clients to complete on them connecting', (done)->
+      class TaskReceiver extends Client
+          
+        
+            
+
       cm = new ClientMaster( 
         port: 6010, 
         auth_port: 6011
@@ -140,7 +145,7 @@ describe 'ClientMaster Test', ->
         encryption_key: 'o5S1kcZp32jWlAdI41sggnpz9vr4fHSA'
       )
 
-      client = new Client(
+      client = new TaskReceiver(
         port            : 4012
         secret_handshake: 'poop' 
         encryption_key  : 'o5S1kcZp32jWlAdI41sggnpz9vr4fHSA'
@@ -154,8 +159,12 @@ describe 'ClientMaster Test', ->
       )
 
       taskGiver.sendMessage( taskMsg, { port: 6012, address: '0.0.0.0' } )
-      client.on 'onTaskReceived', ->
+      
+      client.on 'task:received', ->
+        if cm.hasStoredTasks()
+          throw new Error('Stored tasks should be handed out')
         done()
+
       client.authorize()
 
     it 'Destroy', (done)->
