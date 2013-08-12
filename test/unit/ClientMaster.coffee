@@ -29,7 +29,7 @@ describe 'ClientMaster Test', ->
       udp.destroy()
       done()
     
-    it 'Can receive messages from a server on the task port from the authorized source', ( done )->
+    it 'findClientForTask returns a client object ', ( done )->
       cm = new ClientMaster( 
         port: 8000, 
         auth_port: 8001
@@ -45,7 +45,8 @@ describe 'ClientMaster Test', ->
       cm.addClient( '0.0.0.0', 3001 )
       cm.addClient( '0.0.0.0', 3002 )
       client = cm.findClientForTask()
-      expect( client instanceof Backbone.Model ).to.equal true
+      assert( !!client, 'Did not return a client object')
+      assert( client instanceof Backbone.Model, 'Is an instance of BB model');
       cm.destroy()
       done()
 
@@ -86,11 +87,7 @@ describe 'ClientMaster Test', ->
       class Stored extends ClientMaster
         unableToParseTasks: ( msg )->
           assert( false, "Could not parse #{msg}" )
-        # storeTasks: ->
-        #   super
-        #   assert( @hasStoredTasks() is true, ' Should have stored tasks2 ')
 
-        #   throw new Error('Stored tasks called')
         taskMessageReceived: ( taskMsg )->
           super
           tasks = @parseTasks( taskMsg )
@@ -127,16 +124,10 @@ describe 'ClientMaster Test', ->
 
 
     it 'Can be given a task to process and assign them to clients to complete on them connecting', (done)->
-      # throw new Error('Test incomplete')
-      class MyMaster extends ClientMaster
-        onClientAdded: ->
-
-          done()
-
-      cm = new MyMaster( 
-        port: 6000, 
-        auth_port: 6001
-        task_message_port: 6002
+      cm = new ClientMaster( 
+        port: 6010, 
+        auth_port: 6011
+        task_message_port: 6012
         authorized_server: 
           host: '127.0.0.1'
           port: '6999'
@@ -150,23 +141,22 @@ describe 'ClientMaster Test', ->
       )
 
       client = new Client(
-        port            : 4002
+        port            : 4012
         secret_handshake: 'poop' 
-        encryption_key  : 'hihi'
+        encryption_key  : 'o5S1kcZp32jWlAdI41sggnpz9vr4fHSA'
         server_address  : '0.0.0.0'
-        auth_port       : 6001
-        message_port    : 6002
+        auth_port       : 6011
+        message_port    : 6012
       )
       
       taskMsg = JSON.stringify(
         tasks: [ v:1,v:2,v:3]
       )
 
-      taskGiver.sendMessage( taskMsg, { port: 6002, address: '0.0.0.0' } )
+      taskGiver.sendMessage( taskMsg, { port: 6012, address: '0.0.0.0' } )
+      client.on 'onTaskReceived', ->
+        done()
       client.authorize()
-
-
-      
 
     it 'Destroy', (done)->
       udp1 = new ClientMaster( 
@@ -182,8 +172,3 @@ describe 'ClientMaster Test', ->
       udp1.destroy()
       expect( udp1.task_server).to.equal null
       done()
-
-
-
-
-

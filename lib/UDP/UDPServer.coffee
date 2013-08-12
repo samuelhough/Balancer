@@ -56,8 +56,10 @@ module.exports = class UDPServer extends EventEmitter
     message = new Buffer( msg );
     port = host.port
     address = host.host or host.address
+    if !host
+      throw new Error("sendMessage: Host object required to send message")
     if !port or !address 
-      throw new Error('Port and address required via obj.host /obj.address and obj.port')
+      throw new Error("sendMessage: Port and address required via obj.host /obj.address and obj.port - host.address = #{host.address}, host.port = #{host.port}")
 
     # try
     @server.send(message, 0, message.length, port, address, (err, bytes) =>

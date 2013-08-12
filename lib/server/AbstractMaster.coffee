@@ -1,5 +1,6 @@
 ClientCollection = require './ClientCollection'
 EncryptedUDPServer = require '../UDP/EncryptedUDP'
+ClientModel = require './ClientModel'
 
 module.exports = class AbstractMaster extends EncryptedUDPServer
     server_name: 'AbstractMaster'
@@ -17,14 +18,21 @@ module.exports = class AbstractMaster extends EncryptedUDPServer
     getClientFromHeader: ( rinfo ) ->
       return @clients.getClient( rinfo.address, rinfo.port )
 
-    addClient: ( address, port )->
-      @clients.add( [ 
-        {
-          address: address
-          port: port
-        }
-      ])
-      @onClientAdded( @clients.getClient( address, port ) )
+    addClient: ( address, port, client )->
+      if (typeof address is 'string' or !address)
+        if !address or !port
+          throw new Error( "addClient: missing address:#{address} port:#{port}")
+        client = new ClientModel(
+          {
+              address: address
+              port: port
+          }
+        )  
+      else
+        client = address
+      @clients.add( client )
+      @onClientAdded( client )
+      return client
 
     hasClients: ->
       return !!@clients.models.length
@@ -35,4 +43,10 @@ module.exports = class AbstractMaster extends EncryptedUDPServer
       return !!@clients.getClient( address, port )
 
     messageClient: ( message, client )->
-      @sendMessage( message, { host: client.get('address'), port: client.get('port') } )
+      address = client.get('address');
+      port = client.get('port');
+      if !address or !port
+        throw new Error("Client missing port #{port} or address #{address}")
+      @sendMessage( message, { address: address, port: port } )
+
+

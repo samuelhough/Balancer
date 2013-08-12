@@ -50,6 +50,7 @@ module.exports = class ClientMaster extends Supervisor
       return totalTasks
 
     onClientAdded: ( client )->
+      super
       if @hasStoredTasks()
         @handOutTasks( @task_queue )
         @task_queue = []
