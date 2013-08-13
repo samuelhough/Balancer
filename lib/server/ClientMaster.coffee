@@ -39,7 +39,7 @@ module.exports = class ClientMaster extends Supervisor
         client = @findClientForTask()
         client.addTask( task )
         @addToPendingTasks( task )
-        @messageClient( 'task:'+task.toJSON(), client )
+        @messageClient( 'task:'+JSON.stringify(task.toJSON()), client )
       )
 
     addToPendingTasks: ( task )->  
@@ -70,8 +70,8 @@ module.exports = class ClientMaster extends Supervisor
 
     onTaskComplete: ( task )->
 
-    createTask: ( taskMsg )->
-      new Task( task: taskMsg )
+    createTask: ( task_details )->
+      new Task( status: 'pending', task_details: task_details, task_id: "tid_"+@generateGuid() )
 
     subdivideTasks: ( singleTask )->
       singleTask

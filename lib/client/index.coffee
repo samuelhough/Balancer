@@ -47,12 +47,13 @@ module.exports = class Client extends EncryptedUDP
     task = @createTaskModel( taskJSON )
     task.on 'complete', @onTaskComplete, @
     @emit( 'task:received', task )
-
+    
   onTaskComplete: ( task )->
     @messageMaster( 'task_complete:'+task.toJSON() )
 
   createTaskModel: ( taskJSON )->
-    return new TaskModel( taskJSON )
+    taskModel = JSON.parse( taskJSON )
+    return new TaskModel( taskModel )
 
   onMessageDecrypted: ( message, rinfo )->
     if !(typeof message is 'string')
@@ -61,4 +62,4 @@ module.exports = class Client extends EncryptedUDP
       @_authorize()
     if /task:/.test( message )
       [ prefix, task ] = message.split('task:')
-      @onTaskReceived( message )
+      @onTaskReceived( task )

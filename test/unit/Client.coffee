@@ -28,7 +28,7 @@ describe 'Client Test', ->
       done()
     
 
-    it 'Can be given a task to process and assign them to clients to complete on them connecting', (done)->
+    it 'A client will emit a task when received', (done)->
       cm = new ClientMaster( 
         port: 6020, 
         auth_port: 6021
@@ -62,6 +62,8 @@ describe 'Client Test', ->
       
       client.on 'task:received', ( task )->
         assert( task instanceof Task, 'Should be a task model')
+        assert( task.isComplete() is false, 'The task should not yet be complete' )
+        assert( !!task.get('task_id'), 'The task should have a task id' )
         done()
 
       client.authorize()
