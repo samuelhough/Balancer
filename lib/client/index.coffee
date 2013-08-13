@@ -2,6 +2,8 @@ TaskCollection = require '../Collections/TaskCollection'
 EncryptedUDP = require '../UDP/EncryptedUDP'
 Handshake = require '../controller/handshake'
 TaskModel = require '../models/Task'
+_ = require '../../node_modules/underscore'
+
 module.exports = class Client extends EncryptedUDP
   authorized: false
   constructor: ( options )->
@@ -9,6 +11,7 @@ module.exports = class Client extends EncryptedUDP
     @validateOptions( options )
     @tasks = new TaskCollection()
     @handshaker = new Handshake( secret_handshake: options.secret_handshake )
+    @onTaskComplete = _.bind( @onTaskComplete, @ )
 
   validateOptions: ( options )->
     if !options
@@ -35,11 +38,18 @@ module.exports = class Client extends EncryptedUDP
     @emit('authorized', @)
 
   authorize: ->
-    return @sendMessage( @handshaker.getHandshake(),  { host: @server_address, port: @auth_port } )
+    return @messageMaster( @handshaker.getHandshake() )
+
+  messageMaster: ( msg ) ->
+    @sendMessage( msg,  { host: @server_address, port: @auth_port } )
 
   onTaskReceived: ( taskJSON )->
     task = @createTaskModel( taskJSON )
+    task.on 'complete', @onTaskComplete, @
     @emit( 'task:received', task )
+
+  onTaskComplete: ( task )->
+    @messageMaster( 'task_complete:'+task.toJSON() )
 
   createTaskModel: ( taskJSON )->
     return new TaskModel( taskJSON )

@@ -38,9 +38,13 @@ module.exports = class ClientMaster extends Supervisor
           throw new Error(@server_name +": cannot send out something that is not a task")
         client = @findClientForTask()
         client.addTask( task )
-        @pending_tasks.add(task)
+        @addToPendingTasks( task )
         @messageClient( 'task:'+task.toJSON(), client )
       )
+
+    addToPendingTasks: ( task )->  
+      @pending_tasks.add(task)
+      return task
 
     hasPendingTasks: ->
       !!@pending_tasks.models.length

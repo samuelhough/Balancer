@@ -5,6 +5,7 @@ assert = chai.assert
 
 Master  = require '../../lib/server/AbstractMaster'
 UDPServer = require '../../lib/UDP/UDPServer'
+EncryptedUDPServer = require '../../lib/UDP/EncryptedUDP'
 Backbone = require '../../node_modules/backbone'
 ClientModel = require '../../lib/server/ClientModel'
 
