@@ -11,24 +11,31 @@ module.exports = class Client extends EncryptedUDP
     @validateOptions( options )
     @tasks = new TaskCollection()
     @handshaker = new Handshake( secret_handshake: options.secret_handshake )
-    @onTaskComplete = _.bind( @onTaskComplete, @ )
 
   validateOptions: ( options )->
     if !options
       throw 'Client: Options required'
 
-    if !options.auth_port
+    if !options.master or !(typeof options.master is 'object')
+      throw 'Client: master object required'
+
+    if !options.master.auth_port
       throw 'Client: Options.auth_port required'
 
-    if !options.message_port
+    if !options.master.message_port
       throw 'Client: Options.message_port required'
 
-    if !options.server_address
+    if !options.master.server_address
       throw 'Client: Options.server_address required'
+
+    if !options.master.respond_port
+      throw 'Client: options.respond_port required (the port to report all task messages back to)'
     
-    @server_address = options.server_address
-    @message_port   = options.message_port
-    @auth_port      = options.auth_port
+    @master = options.master
+    @server_address = options.master.server_address
+    @respond_port   = options.master.respond_port
+    @message_port   = options.master.message_port
+    @auth_port      = options.master.auth_port
 
   isAuthorized: ->
     @authorized
@@ -37,19 +44,28 @@ module.exports = class Client extends EncryptedUDP
     @_authorized = true
     @emit('authorized', @)
 
-  authorize: ->
-    return @messageMaster( @handshaker.getHandshake() )
+  getMasterDetails: ->
+    return {
+      respond_port: @respond_port
+      message_port: @message_port
+      auth_port: @auth_port
+      server_address: @server_address
+    }
+
+  authorize: ( msg )->
+    @sendMessage( @handshaker.getHandshake(),  { host: @server_address, port: @auth_port } )
 
   messageMaster: ( msg ) ->
-    @sendMessage( msg,  { host: @server_address, port: @auth_port } )
+    @sendMessage( msg,  { host: @server_address, port: @respond_port } )
 
   onTaskReceived: ( taskJSON )->
     task = @createTaskModel( taskJSON )
-    task.on 'complete', @onTaskComplete, @
+    task.on('change:status', @sendTaskData, @)
     @emit( 'task:received', task )
+    task
     
-  onTaskComplete: ( task )->
-    @messageMaster( 'task_complete:'+task.toJSON() )
+  sendTaskData: ( task )->
+    @messageMaster( 'task:'+JSON.stringify(task.toJSON()) )
 
   createTaskModel: ( taskJSON )->
     taskModel = JSON.parse( taskJSON )

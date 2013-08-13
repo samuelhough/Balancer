@@ -28,6 +28,8 @@ module.exports = class EncryptedUDP extends UDPServer
  
 
   encryptMessage: ( msg, host ) ->
+    if !msg
+      return null
     encryptMessage = msg
     if @encryption_key
       cypher = crypto.createCipher( @cipher, @encryption_key )

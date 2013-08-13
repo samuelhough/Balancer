@@ -145,9 +145,11 @@ describe 'ClientMaster Test', ->
         port            : 4012
         secret_handshake: 'poop' 
         encryption_key  : 'o5S1kcZp32jWlAdI41sggnpz9vr4fHSA'
-        server_address  : '0.0.0.0'
-        auth_port       : 6011
-        message_port    : 6012
+        master:
+          respond_port    : 6020
+          server_address  : '0.0.0.0'
+          auth_port       : 6011
+          message_port    : 6012
       )
       
       taskMsg = JSON.stringify(
@@ -163,6 +165,50 @@ describe 'ClientMaster Test', ->
         taskGiver.destroy()
         client.destroy()
         cm.destroy()
+        done()
+
+      client.authorize()
+
+
+    it 'A master will update the task when it receives new info about the task', (done)->
+      cm = new ClientMaster( 
+        port: 6020, 
+        auth_port: 6021
+        task_message_port: 6022
+        authorized_server: 
+          host: '127.0.0.1'
+          port: '6999'
+        secret_handshake: 'poop' 
+        encryption_key: 'o5S1kcZp32jWlAdI41sggnpz9vr4fHSA'
+      )
+
+      taskGiver = new UDPServer(
+        port: '6999'
+        encryption_key: 'o5S1kcZp32jWlAdI41sggnpz9vr4fHSA'
+      )
+
+      client = new Client(
+        port            : 4022
+        secret_handshake: 'poop' 
+        encryption_key  : 'o5S1kcZp32jWlAdI41sggnpz9vr4fHSA'
+        master:
+          respond_port    : 6020
+          server_address  : '0.0.0.0'
+          auth_port       : 6021
+          message_port    : 6020
+      )
+      
+      taskMsg = JSON.stringify(
+        tasks: [ v:1 ]
+      )
+
+      taskGiver.sendMessage( taskMsg, { port: 6022, address: '0.0.0.0' } )
+
+      
+      client.on 'task:received', ( task )->
+        task.complete()
+
+      cm.on 'change:task_status', ( task) ->
         done()
 
       client.authorize()

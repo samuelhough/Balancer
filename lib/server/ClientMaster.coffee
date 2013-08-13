@@ -58,7 +58,7 @@ module.exports = class ClientMaster extends Supervisor
       totalTasks = []
       for oneTask in subdividedTasks
         thisTask = @createTask( oneTask )
-        thisTask.on('completed', @onTaskComplete, @)
+        thisTask.on('change:status', @onTaskStatusChange, @)
         totalTasks.push( thisTask )
       return totalTasks
 
@@ -68,13 +68,30 @@ module.exports = class ClientMaster extends Supervisor
         @handOutTasks( @task_queue )
         @task_queue = []
 
-    onTaskComplete: ( task )->
+    onTaskStatusChange: ( task )->
+      @emit( 'change:task_status', task )
 
     createTask: ( task_details )->
       new Task( status: 'pending', task_details: task_details, task_id: "tid_"+@generateGuid() )
 
     subdivideTasks: ( singleTask )->
       singleTask
+
+    onMessageDecrypted: ( msg, rhost )->
+      super
+      if /task:/.test( msg )
+        @updateTask( msg.split('task:')[1] )
+        
+
+    # unauthorizedMsg: (msg )->
+    #   throw 'bad' + msg
+
+    updateTask: ( taskJSON )->
+      task = JSON.parse( taskJSON )
+      model = @pending_tasks.findWhere( { task_id: task.task_id } )
+      for key of task
+        model.set( key, task[key] )
+
 
     # Determine how to return array of task objects here
     createTaskObject: ( taskMsg )->

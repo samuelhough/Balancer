@@ -1,14 +1,11 @@
 Backbone = require '../../node_modules/backbone'
-Q = require '../../node_modules/Q'
 
 module.exports = Backbone.Model.extend(
-    completed: false
-    completeTask: ()->
-      @completed = true
+    complete: ()->
+      @set('status', 'complete')
       @trigger('completed', @)
-      
-    isComplete: ->
-      @completed
 
+    isComplete: ->
+      return this.get('status') is 'complete'
     sync: ->
 )

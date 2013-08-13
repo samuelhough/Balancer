@@ -49,9 +49,11 @@ describe 'ServerWithAuth Test', ->
         port            : 3002
         secret_handshake: 'poop' 
         encryption_key  : 'hihi'
-        server_address  : '0.0.0.0'
-        auth_port       : 8001
-        message_port    : 8000
+        master:
+          respond_port    : 6020
+          server_address  : '0.0.0.0'
+          auth_port       : 8001
+          message_port    : 8000
       )
       count = 0
       udp1.on('client_authorized', ->
