@@ -3,6 +3,7 @@ _ = require '../../node_modules/underscore'
 EventEmitter = require('events').EventEmitter
 Q = require '../../node_modules/Q'
 Colors = require '../../node_modules/colors'
+ServerLoader = require '../controller/ServerLoader'
 
 module.exports = class UDPServer extends EventEmitter
   udp_type: 'udp4'
@@ -19,7 +20,10 @@ module.exports = class UDPServer extends EventEmitter
     @connections = []
     @connections_by_id = {}
     @createServer()
+    @serverLoader = new ServerLoader()
     if options
+      if options.server_config
+        @serverLoader.loadServerConfig( options.server_config )
       if options.connectTo
         @connect( options.connectTo.host, options.connectTo.port ) 
 
@@ -51,6 +55,9 @@ module.exports = class UDPServer extends EventEmitter
     address = @getAddress();
     console.log( String(@server_name + " Server listening on " + String(address.address + ":" + String(address.port).red).cyan ).green );
 
+  getServerList: ->
+    @serverLoader.getServerList()
+
   sendMessage: ( msg, host )->
     deferred = Q.defer()
     message = new Buffer( msg );
@@ -75,6 +82,20 @@ module.exports = class UDPServer extends EventEmitter
     )
       
     return deferred
+
+  predicateServerSend: ( msg, serverName, fn )->
+    if @serverLoader.hasServer( serverName )
+      server = @serverLoader.getServer( serverName )
+      fn.call( @, msg, { host: server.get('host') or server.get('address'), port: server.get('port') }  )
+      return true
+    else
+      return false
+
+  sendJSONToServer: ( msg, serverName )->
+    return @predicateServerSend( msg, serverName, @sendJSON )
+
+  sendMessageToServer: ( msg, serverName )->
+    return @predicateServerSend( msg, serverName, @sendMessage )
 
   sendJSON: ( jsonObj, host )->
     return @sendMessage( JSON.stringify( jsonObj ), host )

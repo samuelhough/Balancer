@@ -70,6 +70,42 @@ describe 'UDP Test', ->
           done()
         )
 
+    it 'Can send send message using only a servername', ( done )->
+        UDPServer1 = new UDPServer( port: 3017 )
+        UDPServer1.serverLoader.addServer( {
+          name: 'server2'
+          host: '0.0.0.0'
+          port: '8018'
+        })
+        UDPServer1.sendMessageToServer( 'hi', 'server2' )
+
+        # Receive the message
+        UDPServer2 = new UDPServer( port: 8018 )
+        UDPServer2.on( 'message_received', ( msg, senderInfo) ->
+          assert( msg is 'hi', 'Should have received a  message' )
+          UDPServer1.destroy()
+          UDPServer2.destroy()
+          done()
+        )
+
+    it 'Can send JSON using only a servername', ( done )->
+        UDPServer1 = new UDPServer( port: 3017 )
+        UDPServer1.serverLoader.addServer( {
+          name: 'server2'
+          host: '0.0.0.0'
+          port: '8018'
+        })
+        UDPServer1.sendJSONToServer( { msg: 'hi' }, 'server2' )
+
+        # Receive the message
+        UDPServer2 = new UDPServer( port: 8018 )
+        UDPServer2.on( 'message_received', ( message, senderInfo) ->
+          assert( message is '{"msg":"hi"}', "#{message} is not '{\"msg\":\"hi\"}'", 'Should have received correct json' )
+          UDPServer1.destroy()
+          UDPServer2.destroy()
+          done()
+        )
+
     it 'Check that the test code in the readme works', ( done )->
         # From the server sending the message
         UDPServer1 = new UDPServer( port: 3016 )

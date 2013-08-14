@@ -16,6 +16,16 @@ UDP Server Messaging (Without encryption)
       host: '0.0.0.0',
       port: '8000' 
     })
+    UDPServer1.sendJSON(
+      { 
+        msg: hi 
+      }, 
+      { 
+        host: '0.0.0.0',
+        port: '8000' 
+      }
+
+    )
 
 
     # Receive the message

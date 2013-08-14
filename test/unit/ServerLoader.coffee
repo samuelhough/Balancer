@@ -51,11 +51,9 @@ describe 'ServerLoader Test', ->
     it 'Can remove a server by name or object', (done)->
       serverLoader = new ServerLoader()
       serverLoader.loadConfig( './test/unit/server-config.json' )
-
       assert( serverLoader.getServers().length is 3, 'Should be three servers')
       serverLoader.removeServer( 'Server1' )
       assert( serverLoader.getServers().length is 2, 'Should be one less server')
-
       serverLoader.removeServer( serverLoader.getServer('Server2') )
       assert( serverLoader.getServers().length is 1, 'Should be only one server')
       done()
