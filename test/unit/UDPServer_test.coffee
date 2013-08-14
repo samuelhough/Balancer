@@ -88,6 +88,15 @@ describe 'UDP Test', ->
           done()
         )
 
+    it 'Can load server-config from the argument', (done)->
+        UDPServer1 = new UDPServer( 
+          port: 3017 
+          server_config: 'test/unit/server-config.json'
+        )
+        assert(UDPServer1.serverLoader.servers.models.length is 3, 'Should have three models')
+        UDPServer1.destroy()
+        done()
+
     it 'Can send JSON using only a servername', ( done )->
         UDPServer1 = new UDPServer( port: 3017 )
         UDPServer1.serverLoader.addServer( {

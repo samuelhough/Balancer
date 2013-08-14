@@ -23,7 +23,7 @@ module.exports = class UDPServer extends EventEmitter
     @serverLoader = new ServerLoader()
     if options
       if options.server_config
-        @serverLoader.loadServerConfig( options.server_config )
+        @serverLoader.loadConfig( options.server_config )
       if options.connectTo
         @connect( options.connectTo.host, options.connectTo.port ) 
 
