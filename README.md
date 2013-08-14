@@ -1,8 +1,6 @@
 ##TaskBalancer -
   Balance tasks between multiple clients over encrypted UDP
 
-  PRE - ALPHA
-
 ## Status
 Completely broken and in progress at the moment
 
