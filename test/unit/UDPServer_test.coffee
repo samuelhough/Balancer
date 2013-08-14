@@ -45,3 +45,27 @@ describe 'UDP Test', ->
           udp2.destroy()
           done()
       )
+
+
+    it 'Check that the test code in the readme works', ( done )->
+        # From the server sending the message
+        UDPServer1 = new UDPServer( port: 3016 )
+        deferred = UDPServer1.sendMessage( 'hi', { 
+          host: '0.0.0.0',
+          port: '8015' 
+        })
+        UDPServer1.on('message_received', ( message, senderInfo )->
+          assert( message is 'Hey I got your message UDPServer1', 'Should have received a message' )
+          done()
+        )
+
+        # Receive the message
+        UDPServer2 = new UDPServer( port: 8015 )
+        UDPServer2.on( 'message_received', ( message, senderInfo) ->
+          console.log( "I received '#{message}' from #{senderInfo.address}:#{senderInfo.port}")
+          shouldBeMsg = 'hi'
+          assert( typeof message is 'string', 'Type should be string  and not an object: '+ typeof message )
+          assert( message is "hi", "Should be the same message received - '#{message}' != '#{shouldBeMsg}' #{message.length}")
+          @sendMessage( 'Hey I got your message UDPServer1', senderInfo )
+          assert( @ is UDPServer2, 'Scope without args should be the UDPServer firing the callback')
+        )

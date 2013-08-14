@@ -44,7 +44,7 @@ module.exports = class UDPServer extends EventEmitter
 
   onMessageReceived: (msg, rinfo) ->
     console.log( String("Server received: " + msg + " from " + String(rinfo.address).red + ":" + String(rinfo.port).green).yellow );
-    @emit( 'message_received', msg, rinfo )
+    @emit( 'message_received', String(msg), rinfo )
 
   onServerListening: ->
     address = @getAddress();
@@ -71,9 +71,6 @@ module.exports = class UDPServer extends EventEmitter
         @onSuccessSendingMessage( msg, bytes )
       
     )
-    # catch e 
-    #   console.log 'Error sending message'
-     # deferred.reject( e )
       
     return deferred
 

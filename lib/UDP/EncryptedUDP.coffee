@@ -39,6 +39,7 @@ module.exports = class EncryptedUDP extends UDPServer
     @__sendMessage( encryptMessage, host )
 
   onMessageReceived: ( msg, host )->
+    super
     if @authorized_only
       if(!_.filter( @authorized, ( auth )->
           return auth.host is String(host.address) and String(auth.port) is String(host.port)

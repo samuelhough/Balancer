@@ -28,6 +28,19 @@ describe 'Encrypted UDP Test', ->
         port: '3001' 
       })
 
+     it 'Should trigger the message_received event', ( done )->
+      udp1 = new UDPServer( port: 3001, encryption_key: 'hihi' )
+      udp2 = new UDPServer( port: 8000, encryption_key: 'hihi' )
+
+      udp1.on( 'message_received', ( msg, info )->
+        assert( msg is 'fdfea03fc98b1822414e763dbcff726c', 'Msg should come in encrypted' )
+        done()
+      )
+      udp2.sendMessage( 'hi', { 
+        host: '0.0.0.0',
+        port: '3001' 
+      })
+
     it 'Can decrypt the message sent between servers', ( done )->
       class child_server extends UDPServer
         onMessageDecrypted: ( msg, info )->
