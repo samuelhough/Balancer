@@ -2,6 +2,7 @@ dgram = require 'dgram'
 _ = require '../../node_modules/underscore'
 EventEmitter = require('events').EventEmitter
 Q = require '../../node_modules/Q'
+Colors = require '../../node_modules/colors'
 
 module.exports = class UDPServer extends EventEmitter
   udp_type: 'udp4'
@@ -48,7 +49,6 @@ module.exports = class UDPServer extends EventEmitter
 
   onServerListening: ->
     address = @getAddress();
-    console.log ' '
     console.log( String(@server_name + " Server listening on " + String(address.address + ":" + String(address.port).red).cyan ).green );
 
   sendMessage: ( msg, host )->
@@ -56,6 +56,8 @@ module.exports = class UDPServer extends EventEmitter
     message = new Buffer( msg );
     port = host.port
     address = host.host or host.address
+    if !msg
+      throw new Error('sendMessage: Cannot send null or empty message')
     if !host
       throw new Error("sendMessage: Host object required to send message")
     if !port or !address 
@@ -67,7 +69,7 @@ module.exports = class UDPServer extends EventEmitter
         deferred.reject( err )
         @onErrorSendingMessage( msg, err, bytes )
       else
-        deferred.resolve()
+        deferred.resolve( msg )
         @onSuccessSendingMessage( msg, bytes )
       
     )
@@ -79,7 +81,6 @@ module.exports = class UDPServer extends EventEmitter
     console.log arguments
 
   onSuccessSendingMessage: ( msg, bytes )->
-    console.log ' '
     console.log '"'+String(msg).green+'" sent successfully'
 
   destroy: ->
