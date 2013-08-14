@@ -47,3 +47,16 @@ describe 'ServerLoader Test', ->
       assert( model.get('host') is '0.0.0.1', 'Should have correct host '+ model.get('host'))
       assert( model.get('port') is '1234', 'Should have correct port '+ model.get('port'))
       done()
+
+    it 'Can remove a server by name or object', (done)->
+      serverLoader = new ServerLoader()
+      serverLoader.loadConfig( './test/unit/server-config.json' )
+
+      assert( serverLoader.getServers().length is 3, 'Should be three servers')
+      serverLoader.removeServer( 'Server1' )
+      assert( serverLoader.getServers().length is 2, 'Should be one less server')
+
+      serverLoader.removeServer( serverLoader.getServer('Server2') )
+      assert( serverLoader.getServers().length is 1, 'Should be only one server')
+      done()
+      

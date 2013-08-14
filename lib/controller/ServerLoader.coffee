@@ -32,5 +32,9 @@ module.exports = class ServerLoader
     !!@servers.findWhere( { name: name })
 
   removeServer: ( name )->
-    server = @servers.findWhere( { name: name })
+    if typeof name is 'string'
+      server = @servers.findWhere( { name: name })
+    else
+      server = name
+
     @servers.remove( server )  
