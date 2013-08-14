@@ -43,6 +43,13 @@ UDP Server Messaging (Without encryption)
       UDPServer2 = null
       UDPServer1 = null
 
+Message only using server name
+=======
+    UDPServer1 = new UDPServer( 
+      port: 3017 
+      server_config: 'test/unit/server-config.json'
+    )
+    UDPServer1.sendMessageToServer( 'This is my message', 'Server1' )
 
 ## Examples
 _(Coming soon)_

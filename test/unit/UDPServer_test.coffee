@@ -94,6 +94,7 @@ describe 'UDP Test', ->
           server_config: 'test/unit/server-config.json'
         )
         assert(UDPServer1.serverLoader.servers.models.length is 3, 'Should have three models')
+        assert(UDPServer1.hasServer('Server1') is true, 'Should have a server named server1')
         UDPServer1.destroy()
         done()
 

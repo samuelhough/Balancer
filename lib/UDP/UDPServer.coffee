@@ -57,6 +57,9 @@ module.exports = class UDPServer extends EventEmitter
 
   getServerList: ->
     @serverLoader.getServerList()
+  
+  hasServer: (name)->
+    @serverLoader.hasServer(name)
 
   sendMessage: ( msg, host )->
     deferred = Q.defer()
