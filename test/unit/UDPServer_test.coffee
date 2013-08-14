@@ -46,6 +46,29 @@ describe 'UDP Test', ->
           done()
       )
 
+    it 'Can send Json using sendJson', ( done )->
+        UDPServer1 = new UDPServer( port: 3017 )
+        deferred = UDPServer1.sendJSON( 
+          {
+            msg: 'hi'
+          }, 
+          { 
+            host: '0.0.0.0'
+            port: '8017' 
+          }
+        )
+
+        # Receive the message
+        UDPServer2 = new UDPServer( port: 8017 )
+        UDPServer2.on( 'message_received', ( message, senderInfo) ->
+          assert( typeof message is 'string', 'Should be a string' )
+          assert( message is '{"msg":"hi"}', "#{message} is not '{\"msg\":\"hi\"}'" )
+          obj = JSON.parse( message )
+          assert( obj.msg is 'hi', 'Should have received a json object' )
+          UDPServer1.destroy()
+          UDPServer2.destroy()
+          done()
+        )
 
     it 'Check that the test code in the readme works', ( done )->
         # From the server sending the message

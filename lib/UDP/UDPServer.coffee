@@ -76,6 +76,9 @@ module.exports = class UDPServer extends EventEmitter
       
     return deferred
 
+  sendJSON: ( jsonObj, host )->
+    return @sendMessage( JSON.stringify( jsonObj ), host )
+
   onErrorSendingMessage: ( msg, err, bytes )->
     console.log 'Error sending message'
     console.log arguments
