@@ -82,10 +82,6 @@ module.exports = class ClientMaster extends Supervisor
       if /task:/.test( msg )
         @updateTask( msg.split('task:')[1] )
         
-
-    # unauthorizedMsg: (msg )->
-    #   throw 'bad' + msg
-
     updateTask: ( taskJSON )->
       task = JSON.parse( taskJSON )
       model = @pending_tasks.findWhere( { task_id: task.task_id } )
