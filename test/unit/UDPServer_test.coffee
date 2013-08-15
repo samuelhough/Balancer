@@ -33,6 +33,13 @@ describe 'UDP Test', ->
         port: '3000' 
       })
 
+    it 'Destroying a server will emit a closed event when the server has fully closed', ( done )->
+      udp2 = new UDPServer( port: 8000 )
+      udp2.on('server_closed', ->
+        done()
+      )
+      udp2.destroy()
+
     it 'Calling send message returns a deferred that resolves when passing', ( done )->
       udp1 = new UDPServer( port: 3000 )
       udp2 = new UDPServer( port: 8000 )

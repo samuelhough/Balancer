@@ -31,6 +31,7 @@ module.exports = class UDPServer extends EventEmitter
     @server = dgram.createSocket(@udp_type)
     @server.on("message",   _.bind(  @onMessageReceived, @ ) )
     @server.on("listening",  _.bind(  @onServerListening, @ ) )
+    @server.on("close",  _.bind(  @onServerClosed, @ ) )
     @server.bind( @my_port, @my_host )
 
   saveAddress: ( host, port )->
@@ -109,6 +110,9 @@ module.exports = class UDPServer extends EventEmitter
 
   onSuccessSendingMessage: ( msg, bytes )->
     console.log '"'+String(msg).green+'" sent successfully'
+
+  onServerClosed: ->
+    @emit('server_closed', @server)
 
   destroy: ->
     if @server

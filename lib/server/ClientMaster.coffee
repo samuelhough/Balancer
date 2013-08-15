@@ -11,7 +11,7 @@ module.exports = class ClientMaster extends Supervisor
     constructor: ->
       super
       @pending_tasks = new TaskCollection()
-      @stored_tasks = new TaskCollection()
+      @stored_tasks  = new TaskCollection()
 
     # The point at which a message is received from another server giving orders
     taskMessageReceived: ( taskMsg )->
