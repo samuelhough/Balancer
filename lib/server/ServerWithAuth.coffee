@@ -26,7 +26,7 @@ module.exports = class ServerWithAuth extends AbstractMaster
       ) 
 
     isAuthorized: ( address, port )->
-      return !!@auth_server.isAClient( address, port )
+      return !!@isAClient( address, port )
 
     destroy: ->
       super
