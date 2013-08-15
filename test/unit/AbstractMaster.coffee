@@ -36,8 +36,8 @@ describe 'AbstractMaster  Test', ->
         port: '1237'
       })
       assert( udp.clients.models.length is 4, 'Should have loaded the fourth client from the pubsubemitted clients' )
+      udp.destroy()
       done()
-
 
     it 'Can send a message and have it received between servers', ( done )->
       class child_server extends Master
