@@ -1,6 +1,6 @@
 Supervisor = require './Supervisor'
 ClientCollection = require './ClientCollection'
-TaskCollection = require '../Collections/TaskCollection'
+TaskCollection = require '../collections/TaskCollection'
 EncryptedUDP = require '../UDP/EncryptedUDP'
 _ = require '../../node_modules/underscore'
 Task = require '../models/Task'
@@ -28,6 +28,8 @@ module.exports = class ClientMaster extends Supervisor
     storeTasks: ( tasks )->
       taskQueue = [].concat tasks
       @stored_tasks.add( taskQueue )
+      if @hasStoredTasks()
+        @emit('tasks_stored', @stored_tasks )
 
     hasStoredTasks: ->
       return !!( @stored_tasks.models.length > 0 )
@@ -64,7 +66,7 @@ module.exports = class ClientMaster extends Supervisor
 
     flushStoredTasks: ->
       tasksToHandOut = @stored_tasks.models
-      @stored_tasks.models = []
+      @stored_tasks = new TaskCollection()
       @handOutTasks( tasksToHandOut )
 
     onClientAdded: ( client )->

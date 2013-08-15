@@ -8,6 +8,8 @@ Client = require '../../lib/Client'
 UDPServer  = require '../../lib/UDP/EncryptedUDP'
 Backbone = require '../../node_modules/backbone'
 Task = require '../../lib/models/Task'
+TaskCollection = require '../../lib/collections/TaskCollection'
+
 
 describe 'ClientMaster Test', ->
     it 'Should be there', (done) ->
@@ -120,6 +122,36 @@ describe 'ClientMaster Test', ->
       assert( typeof cm.hasStoredTasks is 'function', 'should have a hasStoredTasks method')
       assert( cm.hasStoredTasks() is false, ' Should not yet have stored tasks ')
       taskGiver.sendMessage( taskMsg, { port: 5002, address: '0.0.0.0' } )
+
+    it 'Emits an event when tasks are stored', (done)->
+      cm = new ClientMaster( 
+        port: 5000, 
+        auth_port: 5001
+        task_message_port: 5003
+        authorized_server: 
+          host: '127.0.0.1'
+          port: '5999'
+        secret_handshake: 'poop' 
+        encryption_key: 'o5S1kcZp32jWlAdI41sggnpz9vr4fHSA'
+      )
+
+
+      taskGiver = new UDPServer(
+        port: '5999'
+        encryption_key: 'o5S1kcZp32jWlAdI41sggnpz9vr4fHSA'
+      )
+      taskMsg = JSON.stringify(
+        tasks: [ v:1,v:2,v:3]
+      )
+      cm.on('tasks_stored', ( tasks )->
+        assert( cm.stored_tasks instanceof TaskCollection, 'Should be a task collection')
+        assert( TaskCollection, 'Should be a task collection constructor')
+        assert( tasks instanceof TaskCollection, 'Gives the task collection instance not a: '+ tasks )
+        cm.destroy()
+        taskGiver.destroy()
+        done()
+      )
+      taskGiver.sendMessage( taskMsg, { port: 5003, address: '0.0.0.0' } )
 
 
 
