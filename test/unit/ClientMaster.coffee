@@ -201,6 +201,56 @@ describe 'ClientMaster Test', ->
 
       client.authorize()
 
+    it 'Can avoid flushing tasks if given the parameter autoFlushTasks as false', (done)->
+      class TaskReceiver extends Client
+      class NoFlush extends ClientMaster
+        onClientAdded: ->
+          super
+          if !@hasStoredTasks()
+            throw new Error('Should have stored tasks')
+          cm.destroy()
+          taskGiver.destroy()
+          client.destroy()
+          done()
+
+      cm = new NoFlush( 
+        port: 6010, 
+        auth_port: 6011
+        task_message_port: 6012
+        authorized_server: 
+          host: '127.0.0.1'
+          port: '6999'
+        secret_handshake: 'poop' 
+        encryption_key: 'o5S1kcZp32jWlAdI41sggnpz9vr4fHSA'
+        autoFlushTasks: false
+      )
+
+      taskGiver = new UDPServer(
+        port: '6999'
+        encryption_key: 'o5S1kcZp32jWlAdI41sggnpz9vr4fHSA'
+      )
+
+      client = new TaskReceiver(
+        port            : 4012
+        secret_handshake: 'poop' 
+        encryption_key  : 'o5S1kcZp32jWlAdI41sggnpz9vr4fHSA'
+        master:
+          respond_port    : 6020
+          server_address  : '0.0.0.0'
+          auth_port       : 6011
+          message_port    : 6012
+      )
+      
+      taskMsg = JSON.stringify(
+        tasks: [ v:1,v:2,v:3]
+      )
+
+      taskGiver.sendMessage( taskMsg, { port: 6012, address: '0.0.0.0' } )
+      client.on 'task:received', ( task )->
+        throw new Error('Should not flush a task')
+
+      client.authorize()
+
 
     it 'A master will update the task when it receives new info about the task', (done)->
       cm = new ClientMaster( 

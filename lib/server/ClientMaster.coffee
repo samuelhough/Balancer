@@ -7,9 +7,12 @@ Task = require '../models/Task'
 
 module.exports = class ClientMaster extends Supervisor
     server_name: 'ClientMaster'
-
-    constructor: ->
+    autoFlushTasks: true # Set to false if you want tasks to only be flushed by you
+    constructor: (options)->
       super
+      if typeof options.autoFlushTasks != 'undefined'
+        @autoFlushTasks = options.autoFlushTasks
+
       @pending_tasks = new TaskCollection()
       @stored_tasks  = new TaskCollection()
 
@@ -71,8 +74,9 @@ module.exports = class ClientMaster extends Supervisor
 
     onClientAdded: ( client )->
       super
-      if @hasStoredTasks()
+      if @hasStoredTasks() and @autoFlushTasks
         @flushStoredTasks()
+
 
     onTaskStatusChange: ( task )->
       @emit( 'change:task_status', task )
