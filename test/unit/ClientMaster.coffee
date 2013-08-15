@@ -211,6 +211,9 @@ describe 'ClientMaster Test', ->
       cm.on 'change:task_status', ( task) ->
         status = task.get('status')
         assert( status is 'complete', "Status shouldbe complete not #{status}")
+        client.destroy()
+        taskGiver.destroy()
+        cm.destroy()
         done()
 
       client.authorize()

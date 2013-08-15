@@ -11,6 +11,7 @@ module.exports = class ClientMaster extends Supervisor
     constructor: ->
       super
       @pending_tasks = new TaskCollection()
+      @stored_tasks = new TaskCollection()
 
     # The point at which a message is received from another server giving orders
     taskMessageReceived: ( taskMsg )->
@@ -25,12 +26,11 @@ module.exports = class ClientMaster extends Supervisor
         @unableToParseTasks( taskMsg )
 
     storeTasks: ( tasks )->
-      if !@task_queue
-        @task_queue = []
-      @task_queue = @task_queue.concat( tasks )
+      taskQueue = [].concat tasks
+      @stored_tasks.add( taskQueue )
 
     hasStoredTasks: ->
-      return !!(@task_queue and @task_queue.length > 0)
+      return !!( @stored_tasks.models.length > 0 )
 
     handOutTasks: ( tasks )->
       _.each( tasks, ( task )=>
@@ -62,11 +62,15 @@ module.exports = class ClientMaster extends Supervisor
         totalTasks.push( thisTask )
       return totalTasks
 
+    flushStoredTasks: ->
+      tasksToHandOut = @stored_tasks.models
+      @stored_tasks.models = []
+      @handOutTasks( tasksToHandOut )
+
     onClientAdded: ( client )->
       super
       if @hasStoredTasks()
-        @handOutTasks( @task_queue )
-        @task_queue = []
+        @flushStoredTasks()
 
     onTaskStatusChange: ( task )->
       @emit( 'change:task_status', task )

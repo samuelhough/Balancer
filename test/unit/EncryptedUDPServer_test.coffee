@@ -34,6 +34,8 @@ describe 'Encrypted UDP Test', ->
 
       udp1.on( 'message_received', ( msg, info )->
         assert( msg is 'fdfea03fc98b1822414e763dbcff726c', 'Msg should come in encrypted' )
+        udp1.destroy()
+        udp2.destroy()
         done()
       )
       udp2.sendMessage( 'hi', { 
