@@ -6,6 +6,11 @@ module.exports = Backbone.Model.extend(
     isAuthenticating: false
     initialize: ()->
       @tasks = []
+      if !@get('name')
+        @set( 'name', @createName() )
+
+    createName: ->
+      "Client_"+@get('host')+':'+@get('port')
 
     addTask: ( task )->
       @tasks.push( task )

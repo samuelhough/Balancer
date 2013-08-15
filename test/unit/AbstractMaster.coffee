@@ -7,7 +7,7 @@ Master  = require '../../lib/server/AbstractMaster'
 UDPServer = require '../../lib/UDP/UDPServer'
 EncryptedUDPServer = require '../../lib/UDP/EncryptedUDP'
 Backbone = require '../../node_modules/backbone'
-ClientModel = require '../../lib/server/ClientModel'
+ClientModel = require '../../lib/models/Client'
 
 describe 'AbstractMaster  Test', ->
     it 'Should be there', (done) ->
@@ -23,6 +23,22 @@ describe 'AbstractMaster  Test', ->
       udp.destroy()
       done()
     
+    it 'If a server config is provided the servers will show up in the client list', ( done )->
+      udp = new Master(
+        secret_handshake: 'poop'
+        encryption_key: 'poopy'
+        server_config: 'test/unit/server-config.json'
+      )
+      assert( udp.clients.models.length is 3, 'Should have loaded 3 clients' )
+      udp.serverLoader.addServer( {
+        name: 'NewServer'
+        host: '0.0.0.0'
+        port: '1237'
+      })
+      assert( udp.clients.models.length is 4, 'Should have loaded the fourth client from the pubsubemitted clients' )
+      done()
+
+
     it 'Can send a message and have it received between servers', ( done )->
       class child_server extends Master
         onMessageDecrypted: ( msg, info )->

@@ -1,10 +1,12 @@
 ClientCollection = require './ClientCollection'
 EncryptedUDPServer = require '../UDP/EncryptedUDP'
-ClientModel = require './ClientModel'
+ClientModel = require '../models/Client'
+_ = require '../../node_modules/underscore'
 
 module.exports = class AbstractMaster extends EncryptedUDPServer
     server_name: 'AbstractMaster'
     constructor: ( options )->
+      super
       if !options
         throw 'AbstractMaster: options hash required'
 
@@ -13,7 +15,14 @@ module.exports = class AbstractMaster extends EncryptedUDPServer
 
       @secret_handshake = options.secret_handshake
       @clients = new ClientCollection()
-      super
+
+      preloadedServers = @serverLoader.getServers()
+      @serverLoader.on('server_added', _.bind( @addClient, @ ) )
+      if preloadedServers.length
+        _.each( preloadedServers, ( client )=>
+          @addClient( client )
+        )
+      
       
     getClientFromHeader: ( rinfo ) ->
       return @clients.getClient( rinfo.address, rinfo.port )

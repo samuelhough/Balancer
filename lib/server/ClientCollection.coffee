@@ -1,6 +1,6 @@
 BackboneCollection = (require '../../node_modules/backbone').Collection
 _ = require '../../node_modules/underscore'
-ClientModel = require './ClientModel'
+ClientModel = require '../models/Client'
 
 module.exports = BackboneCollection.extend(
   model: ClientModel

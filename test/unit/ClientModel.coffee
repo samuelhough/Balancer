@@ -3,7 +3,7 @@ chai     = require 'chai'
 expect   = chai.expect
 
 Backbone = require '../../node_modules/backbone'
-ClientModel  = require '../../lib/server/ClientModel'
+ClientModel  = require '../../lib/models/Client'
 
 describe 'ClientModel', ->
     it 'Should be a constructor', (done) ->

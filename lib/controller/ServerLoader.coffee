@@ -1,8 +1,9 @@
 fs = require 'fs'
-ServerModel = require '../models/Server'
+ClientModel = require '../models/Client'
 ServerCollection = require '../collections/ServerCollection'
+EventEmitter = require('events').EventEmitter
 
-module.exports = class ServerLoader
+module.exports = class ServerLoader extends EventEmitter
   constructor: ->
     @servers = new ServerCollection()
 
@@ -17,7 +18,9 @@ module.exports = class ServerLoader
       @addServer( ServerConfig.servers[server] )
 
   addServer: ( obj )->
-    @servers.add( new ServerModel(obj) )
+    server = new ClientModel(obj)  
+    @servers.add( server )
+    @emit( 'server_added', server )
 
   getServer: ( name )->
     @servers.findWhere( { name: name })

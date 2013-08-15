@@ -5,7 +5,7 @@ assert   = chai.assert
 
 Backbone = require '../../node_modules/backbone'
 ClientCollection  = require '../../lib/server/ClientCollection'
-ClientModel  = require '../../lib/server/ClientModel'
+ClientModel  = require '../../lib/models/Client'
 
 describe 'ClientCollection', ->
     it 'Should be a constructor', (done) ->
