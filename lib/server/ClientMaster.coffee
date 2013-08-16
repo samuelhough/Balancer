@@ -74,9 +74,12 @@ module.exports = class ClientMaster extends Supervisor
 
     onClientAdded: ( client )->
       super
-      if @hasStoredTasks() and @autoFlushTasks
+      if @hasStoredTasks() and @canAutoFlushTasks()
         @flushStoredTasks()
 
+
+    canAutoFlushTasks: ->
+      @autoFlushTasks
 
     onTaskStatusChange: ( task )->
       @emit( 'change:task_status', task )
