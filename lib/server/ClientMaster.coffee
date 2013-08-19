@@ -1,5 +1,5 @@
 Supervisor = require './Supervisor'
-ClientCollection = require './ClientCollection'
+ClientCollection = require '../collections/ClientCollection'
 TaskCollection = require '../collections/TaskCollection'
 EncryptedUDP = require '../UDP/EncryptedUDP'
 _ = require '../../node_modules/underscore'
@@ -40,7 +40,7 @@ module.exports = class ClientMaster extends Supervisor
     handOutTasks: ( tasks )->
       _.each( tasks, ( task )=>
         if !(task instanceof Task)
-          throw new Error(@server_name +": cannot send out something that is not a task")
+          throw new Error( @server_name +": cannot send out something that is not a task")
         client = @findClientForTask()
         client.addTask( task )
         @addToPendingTasks( task )
@@ -77,7 +77,6 @@ module.exports = class ClientMaster extends Supervisor
       if @hasStoredTasks() and @canAutoFlushTasks()
         @flushStoredTasks()
 
-
     canAutoFlushTasks: ->
       @autoFlushTasks
 
@@ -101,7 +100,6 @@ module.exports = class ClientMaster extends Supervisor
       for key of task
         model.set( key, task[key] )
 
-
     # Determine how to return array of task objects here
     createTaskObject: ( taskMsg )->
       try
@@ -113,7 +111,6 @@ module.exports = class ClientMaster extends Supervisor
       catch e
         @unableToParseTasks( taskMsg, e )
         return null
-      
       return taskObj
       
     findClientForTask: ->
@@ -123,4 +120,3 @@ module.exports = class ClientMaster extends Supervisor
       return @clients.clientsByTasks().shift()
 
     unableToParseTasks: ( taskMsg, reason )->
-

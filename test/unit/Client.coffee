@@ -154,6 +154,3 @@ describe 'Client Test', ->
 
       aTask = client.onTaskReceived( JSON.stringify(task.toJSON()) )
       assert( aTask instanceof Task, 'Should return the task model' )
-
-
-

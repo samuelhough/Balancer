@@ -1,4 +1,4 @@
-ClientCollection = require './ClientCollection'
+ClientCollection = require '../collections/ClientCollection'
 AbstractMaster = require './AbstractMaster'
 Handshake = require '../controller/handshake'
 module.exports = class AuthServer extends AbstractMaster

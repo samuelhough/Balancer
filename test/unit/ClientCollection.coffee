@@ -4,7 +4,7 @@ expect   = chai.expect
 assert   = chai.assert
 
 Backbone = require '../../node_modules/backbone'
-ClientCollection  = require '../../lib/server/ClientCollection'
+ClientCollection  = require '../../lib/collections/ClientCollection'
 ClientModel  = require '../../lib/models/Client'
 
 describe 'ClientCollection', ->

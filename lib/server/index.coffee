@@ -1,4 +1,4 @@
-ClientCollection = require './ClientCollection'
+ClientCollection = require '../collections/ClientCollection'
 UDPServer = require '../UDP/UDPServer'
 BackboneModel = (require '../../node_modules/backbone').Model
 module.exports = class Server extends UDPServer

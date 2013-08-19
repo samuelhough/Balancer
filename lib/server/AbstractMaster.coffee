@@ -1,4 +1,4 @@
-ClientCollection = require './ClientCollection'
+ClientCollection = require '../collections/ClientCollection'
 EncryptedUDPServer = require '../UDP/EncryptedUDP'
 ClientModel = require '../models/Client'
 _ = require '../../node_modules/underscore'

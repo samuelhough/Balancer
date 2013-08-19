@@ -1,5 +1,5 @@
 ServerWithAuth = require './ServerWithAuth'
-ClientCollection = require './ClientCollection'
+ClientCollection = require '../collections/ClientCollection'
 EncryptedUDP = require '../UDP/EncryptedUDP'
 _ = require '../../node_modules/underscore'
 
