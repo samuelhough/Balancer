@@ -25,7 +25,7 @@ module.exports = class ClientMaster extends Supervisor
       tasks = @parseTasks( taskMsg )
 
       if tasks and tasks.length
-        @createTaskSet()
+        @createTaskSet( tasks )
         if @hasClients()
           @handOutTasks( tasks )
         else 
@@ -37,10 +37,11 @@ module.exports = class ClientMaster extends Supervisor
     createTaskSet: ( tasks ) ->
       taskSet = new TaskSetModel()
       taskSet.add( tasks )
-      taskSet.on( 'complete', @onTaskSetStatusChange, @)
+      taskSet.on( 'completed', @onTaskSetComplete, @ )
+      @task_sets.add( taskSet )
 
-    onTaskStatusChange: ( taskSet ) ->
-      @emit( 'change:status:taskset', taskSet )
+    onTaskSetComplete: ( taskSet ) ->
+      @emit( 'taskset:completed', taskSet )
 
     storeTasks: ( tasks )->
       taskQueue = [].concat tasks

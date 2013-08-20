@@ -10,7 +10,7 @@ module.exports = Backbone.Model.extend(
       @set( 'count', 0 )
       @set( 'success', true )
       @tasks.on( 'add', @onTaskAdded, @ ) 
-      @on( 'change:count' , @onCountChange, @)
+      @on( 'change:count' , @onCountChange, @ )
 
     add: ( task )->
       @tasks.add( task )
@@ -19,12 +19,12 @@ module.exports = Backbone.Model.extend(
       @get('task_set_id')
 
     onTaskAdded: ( task )->
-      @set('count', ( @get('count') + 1 ) )
+      @set( 'count', ( @get('count') + 1 ) )
       task.set( 'task_set_id', @get('task_set_id') )
       task.on( 'change:status', @onTaskStatusChange, @ )
 
     onTaskStatusChange: ( task, status )->
-      status = task.get('status')
+      status = task.get( 'status' )
 
       if status is 'complete'
         @set( 'count', ( @get('count') - 1) )
@@ -32,19 +32,19 @@ module.exports = Backbone.Model.extend(
         @set( 'success', false )
 
     onCountChange: ->
-      if @get('count') is 0
+      if @get('count') <= 0
         @complete()
       
     complete: ()->
       @tasks = null
-      @set('status', 'complete')
-      @trigger('completed', @)
+      @set( 'status', 'complete' )
+      @trigger( 'completed', @ ) 
 
     getId: ->
-      @get('task_set_id')
+      @get( 'task_set_id' )
 
     isComplete: ->
-      return this.get('status') is 'complete'
+      return this.get( 'status' ) is 'complete'
     
     sync: ->
 )

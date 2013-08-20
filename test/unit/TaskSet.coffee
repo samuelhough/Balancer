@@ -50,4 +50,27 @@ describe 'TaskSet Model', ->
       assert( model.get('count') is 0, 'Count should now be 0')
       assert( t2.get('status') is 'complete', 'Status should be complete' )
 
+     it 'Task models should have a task_set_id property equal to the task set models id', (done)->
+      model = new TaskSetModel()
+      t1 = new TaskModel()
+      t2 = new TaskModel()
+      model.add( [t1, t2] )
+      tId = model.get('task_set_id')
+      assert( t1.get('task_set_id') is tId, 'Should have the same task set id' )
+      assert( t2.get('task_set_id') is tId, 'Should have the same task set id' )
+      m = new TaskModel()
+      model.add( m )
+      assert( m.get('task_set_id') is tId, 'Should have the same task set id' )
+      done()
+
+    it 'Will fire a completed event when all tasks are finished', (done)->
+      model = new TaskSetModel()
+      t1 = new TaskModel()
+      t2 = new TaskModel()
+      model.add( [t1, t2] )
+      model.on('completed', ->
+        done()
+      )
+      t1.complete()
+      t2.complete()
 

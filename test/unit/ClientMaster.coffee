@@ -251,6 +251,39 @@ describe 'ClientMaster Test', ->
 
       client.authorize()
 
+    it 'Will fire an event when all tasks are completed in a set of tasks', (done)->
+      cm = new ClientMaster( 
+        port: 6040, 
+        auth_port: 6041
+        task_message_port: 6042
+        authorized_server: 
+          host: '127.0.0.1'
+          port: '5999'
+        secret_handshake: 'poop' 
+        encryption_key: 'o5S1kcZp32jWlAdI41sggnpz9vr4fHSA'
+      )
+      taskGiver = new UDPServer(
+        port: '5999'
+        encryption_key: 'o5S1kcZp32jWlAdI41sggnpz9vr4fHSA'
+      )
+      
+      taskMsg = JSON.stringify(
+        tasks: [ v:1 ]
+      )
+
+      taskGiver.sendMessage( taskMsg, { port: 6042, address: '0.0.0.0' } )
+
+      cm.on('tasks_stored', ->
+        assert(cm.task_sets.models.length, 'Should have task sets')
+        assert( cm.task_sets.models[0].get('status'), 'Status should be pending' )
+        assert( cm.task_sets.models[0].get('count'), 'Count should be 1' )
+        cm.task_sets.models[0].complete()
+      )
+      cm.on('taskset:completed', ( taskSet ) ->
+        cm.destroy()
+        taskGiver.destroy()
+        done()
+      )
 
     it 'A master will update the task when it receives new info about the task', (done)->
       cm = new ClientMaster( 
