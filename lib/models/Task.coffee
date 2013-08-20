@@ -7,5 +7,6 @@ module.exports = Backbone.Model.extend(
 
     isComplete: ->
       return this.get('status') is 'complete'
+      
     sync: ->
 )

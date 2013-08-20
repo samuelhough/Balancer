@@ -4,6 +4,9 @@ TaskCollection = require '../collections/TaskCollection'
 EncryptedUDP = require '../UDP/EncryptedUDP'
 _ = require '../../node_modules/underscore'
 Task = require '../models/Task'
+TaskSetModel = require '../models/TaskSet'
+TaskSetCollection = require '../collections/TaskSetCollection'
+util = require '../util/index'
 
 module.exports = class ClientMaster extends Supervisor
     server_name: 'ClientMaster'
@@ -15,18 +18,29 @@ module.exports = class ClientMaster extends Supervisor
 
       @pending_tasks = new TaskCollection()
       @stored_tasks  = new TaskCollection()
+      @task_sets = new TaskSetCollection()
 
     # The point at which a message is received from another server giving orders
-    taskMessageReceived: ( taskMsg )->
+    taskMessageReceived: ( taskMsg ) ->
       tasks = @parseTasks( taskMsg )
 
       if tasks and tasks.length
+        @createTaskSet()
         if @hasClients()
           @handOutTasks( tasks )
         else 
           @storeTasks( tasks )
       else
         @unableToParseTasks( taskMsg )
+
+
+    createTaskSet: ( tasks ) ->
+      taskSet = new TaskSetModel()
+      taskSet.add( tasks )
+      taskSet.on( 'complete', @onTaskSetStatusChange, @)
+
+    onTaskStatusChange: ( taskSet ) ->
+      @emit( 'change:status:taskset', taskSet )
 
     storeTasks: ( tasks )->
       taskQueue = [].concat tasks
@@ -84,7 +98,7 @@ module.exports = class ClientMaster extends Supervisor
       @emit( 'change:task_status', task )
 
     createTask: ( task_details )->
-      new Task( status: 'pending', task_details: task_details, task_id: "tid_"+@generateGuid() )
+      new Task( status: 'pending', task_details: task_details, task_id: "tid_"+ util.generateGuid() )
 
     subdivideTasks: ( singleTask )->
       singleTask
